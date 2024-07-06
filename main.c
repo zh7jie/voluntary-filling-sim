@@ -3,10 +3,11 @@
 struct school {
 	int id;
 	char name[40];
+	int number;
 };
 
 struct Student {
-	int id;
+	unsigned long long id;
 	char name[20];
 	int volunteers[12];
 	int scores[7];
@@ -19,11 +20,15 @@ STU *input(STU *, int);
 
 void *print(STU *, int);
 
+void write(STU*, int);
+
+int read(STU**, int);
+
 int main()
 {
 	STU *student = NULL;
 	int number = 0;
-	while (number < 3) {
+	while (1) {
 		int choice = init();
 		switch (choice) {
 		case 1:
@@ -32,7 +37,13 @@ int main()
 			break;
 		case 2:
 			print(student, number);
-
+			break;
+		case 3:
+			write(student, number);
+			break;
+		case 4:
+			number += read(&student, number);
+			break;
 		default:
 			break;
 		}
@@ -59,11 +70,12 @@ STU *input(STU *student, int number)
 	if (student == NULL) {
 		student = (STU *) malloc(sizeof(STU));
 	} else {
+		student -= (number - 1);
 		student = (STU *) realloc(student, (number + 1) * sizeof(STU));
-		student++;
+		student += number;
 	}
 	printf("请输入准考证号：");
-	scanf("%d", &(student->id));
+	scanf("%llu", &(student->id));
 	printf("请输入考生姓名：");
 	scanf("%s", student->name);
 	printf("请填入志愿：\n");
@@ -88,7 +100,7 @@ void *print(STU *student, int number)
 	student -= (number - 1);
 	for (int x = 0; x < number; x++) {
 		printf("===============================\n");
-        printf("准考证号：%d\t姓名：%s\n", student->id,
+        printf("准考证号：%llu\t姓名：%s\n", student->id,
 		       &(student->name));
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 4; j++) {
@@ -111,4 +123,34 @@ void *print(STU *student, int number)
 	printf("按回车键退出...");
 	getchar();
     getchar();
+}
+
+void write(STU *student, int number)
+{
+	student -= (number - 1);
+	FILE *fd = NULL;
+	fd = fopen("./students.data", "w");
+	//printf("%d", student->id);
+	fwrite(student, sizeof(STU), number, fd);
+	fclose(fd);
+}
+
+int read(STU** student, int number)
+{
+	FILE *fd = NULL;
+	char s[50];
+	printf("请输入文件地址：");
+	scanf("%s", s);
+	fd = fopen(s, "r");
+	printf("请输入导入的学生数量：");
+	int add;
+	scanf("%d", &add);
+	if (*student != NULL)
+		(*student) -= (number - 1);
+	*student = (STU*)realloc(*student, (number + add) * sizeof(STU));
+	*student += number;
+	fread(*student, sizeof(STU), add, fd);
+	fclose(fd);
+	*student += (add - 1);
+	return add;
 }
