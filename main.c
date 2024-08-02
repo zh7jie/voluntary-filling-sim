@@ -61,7 +61,9 @@ int init(void)
 	printf("3.导出信息\t4.导入信息\n");
 	printf("请输入选项（数字）：");
 	int a;
-	scanf("%d", &a);
+	if (scanf("%d", &a) != 1){
+		exit(0);	
+	}
 	return a;
 }
 
@@ -75,7 +77,15 @@ STU *input(STU *student, int number)
 		student += number;
 	}
 	printf("请输入准考证号：");
-	scanf("%llu", &(student->id));
+	unsigned long long temp = 0;
+	STU *t = student - (number - 1);
+	int i = 0;
+	scanf("%llu", &temp);
+	while (temp == 0 || temp == t->id || i < number){
+		printf("错误，请重新输入！\n请输入准考证号：");
+		scanf("%llu", &temp);
+	}
+	student->id = temp;
 	printf("请输入考生姓名：");
 	scanf("%s", student->name);
 	printf("请填入志愿：\n");
